@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maddy's Restaurant</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: #f4f4f4;
+}
+
+header {
+    background: #111;
+    color: white;
+    text-align: center;
+    padding: 20px;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.controls {
+    text-align: center;
+    margin: 20px;
+}
+
+button {
+    padding: 10px 20px;
+    margin: 5px;
+    background: orange;
+    border: none;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.menu-items {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+.item {
+    width: 220px;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.item:hover {
+    transform: scale(1.05);
+}
+
+.item img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+}
+
+.price {
+    color: green;
+    font-weight: bold;
+}
+
+/* POPUP */
+.popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 0 25px rgba(0,0,0,0.3);
+}
+
+.qr {
+    width: 200px;
+    margin-top: 10px;
+    border: 2px solid #ddd;
+    padding: 5px;
+    border-radius: 10px;
+}
+
+.upi {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #333;
+}
+</style>
+</head>
+
+<body>
+
+<header>🍽️ MADDY'S RESTAURANT</header>
+
+<div class="controls">
+<button onclick="filterMenu('all')">All</button>
+<button onclick="filterMenu('veg')">Veg</button>
+<button onclick="filterMenu('nonveg')">Non-Veg</button>
+</div>
+
+<!-- MENU -->
+<div class="menu-items">
+
+<div class="item veg" onclick="selectItem('Paneer Butter Masala',220)">
+<img src="https://celloindia.co.in/cdn/shop/articles/09e4acfe3778136b196f0202b45f49d5_60e19218-7883-44c2-987f-76a01e6f3606_394x.jpg?v=1739959151">
+<h3>Paneer Butter Masala</h3>
+<p class="price">₹220</p>
+</div>
+
+<div class="item veg" onclick="selectItem('Masala Dosa',90)">
+<img src="https://images.pexels.com/photos/5560763/pexels-photo-5560763.jpeg">
+<h3>Masala Dosa</h3>
+<p class="price">₹90</p>
+</div>
+
+<div class="item veg" onclick="selectItem('Veg Biryani',180)">
+<img src="https://www.madhuseverydayindian.com/wp-content/uploads/2022/11/easy-vegetable-biryani.jpg">
+<h3>Veg Biryani</h3>
+<p class="price">₹180</p>
+</div>
+
+<div class="item nonveg" onclick="selectItem('Chicken Biryani',220)">
+<img src="https://authenticroyal.com/wp-content/uploads/2024/05/How-to-Make-Chicken-Biryani-Video.jpg">
+<h3>Chicken Biryani</h3>
+<p class="price">₹220</p>
+</div>
+
+<div class="item nonveg" onclick="selectItem('Grilled Chicken',249)">
+<img src="https://spiceindiaonline.com/wp-content/uploads/2021/05/Tandoori-Chicken-20.jpg">
+<h3>Grilled Chicken</h3>
+<p class="price">₹249</p>
+</div>
+
+<div class="item nonveg" onclick="selectItem('Fish Fry',230)">
+<img src="https://c.ndtvimg.com/2020-01/op8grfc_fish_625x300_11_January_20.jpg">
+<h3>Fish Fry</h3>
+<p class="price">₹230</p>
+</div>
+
+</div>
+
+<div class="controls">
+<button onclick="showBill()">View Bill</button>
+</div>
+
+<!-- QUANTITY -->
+<div class="popup" id="qtyBox">
+<h3 id="foodName"></h3>
+<input type="number" id="qty" placeholder="Enter Quantity">
+<br>
+<button onclick="addToCart()">Add</button>
+</div>
+
+<!-- BILL -->
+<div class="popup" id="billBox">
+<h3>Your Bill</h3>
+<p id="billDetails"></p>
+<h3 id="total"></h3>
+
+<h4>Scan & Pay</h4>
+
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=7989780686@ybl&pn=MADDY&cu=INR" class="qr">
+
+<div class="upi">UPI ID: 7989780686@ybl</div>
+
+<br><br>
+<button onclick="payDone()">Paid</button>
+<button onclick="cashOrder()">Cash</button>
+</div>
+
+<script>
+let cart = [];
+let itemName = "";
+let itemPrice = 0;
+
+function filterMenu(cat) {
+    let items = document.querySelectorAll(".item");
+    items.forEach(i => {
+        if(cat === "all" || i.classList.contains(cat)) {
+            i.style.display = "block";
+        } else {
+            i.style.display = "none";
+        }
+    });
+}
+
+function selectItem(name, price) {
+    itemName = name;
+    itemPrice = price;
+    document.getElementById("foodName").innerText = name;
+    document.getElementById("qtyBox").style.display = "block";
+}
+
+function addToCart() {
+    let qty = document.getElementById("qty").value;
+    if(qty <= 0) return alert("Enter valid quantity");
+
+    cart.push({name:itemName, price:itemPrice, qty:qty});
+    document.getElementById("qtyBox").style.display = "none";
+    alert("Added to cart!");
+}
+
+function showBill() {
+    let text = "";
+    let total = 0;
+
+    cart.forEach(i => {
+        let cost = i.price * i.qty;
+        total += cost;
+        text += i.name + " x " + i.qty + " = ₹" + cost + "<br>";
+    });
+
+    document.getElementById("billDetails").innerHTML = text;
+    document.getElementById("total").innerText = "Total: ₹" + total;
+    document.getElementById("billBox").style.display = "block";
+}
+
+function payDone() {
+    alert("✅ Your order is successfully placed. You will receive it in 15 minutes.");
+
+    cart = [];
+    document.getElementById("billBox").style.display = "none";
+
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
+}
+
+function cashOrder() {
+    alert("💵 Cash order placed. You will receive it in 15 minutes.");
+
+    cart = [];
+    document.getElementById("billBox").style.display = "none";
+
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
+}
+</script>
+
+</body>
+</html>
